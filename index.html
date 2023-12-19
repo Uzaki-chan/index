@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Page</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        
+        #message-box {
+            height: 400px;
+            overflow: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        
+        #message-box p {
+            margin: 0;
+            padding: 5px;
+        }
+        
+        #input-box {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Page</h1>
+    <div id="message-box"></div>
+    <div id="input-box">
+        <input type="text" id="message-input" placeholder="Type a message...">
+        <button type="button" id="submit-button">Send</button>
+    </div>
+    
+    <script>
+        
+        const messageBox = document.getElementById('message-box');
+        const messageInput = document.getElementById('message-input');
+        const submitButton = document.getElementById('submit-button');
+        
+        function displayStoredMessages() {
+            const storedMessages = localStorage.getItem('messages');
+            const messages = storedMessages ? JSON.parse(storedMessages) : [];
+
+            // Очищаем контейнер перед добавлением новых сообщений
+            messageBox.innerHTML = '';
+
+            messages.forEach(function(messageObj) {
+                const p = document.createElement('p');
+                p.textContent = `${messageObj.message} - ${messageObj.time}`;
+                messageBox.appendChild(p);
+            });
+
+            // Прокручиваем контейнер вниз
+            messageBox.scrollTop = messageBox.scrollHeight;
+        }
+
+        displayStoredMessages(); // Вызываем функцию при загрузке страницы
+
+        submitButton.addEventListener('click', function() {
+            const message = messageInput.value;
+            if (message) {
+                const currentTime = new Date().toLocaleTimeString();
+                const messageObj = { time: currentTime, message: message };
+
+                const p = document.createElement('p');
+                p.textContent = `${messageObj.message} - ${messageObj.time}`;
+                messageBox.appendChild(p);
+                
+                const storedMessages = localStorage.getItem('messages');
+                const messages = storedMessages ? JSON.parse(storedMessages) : [];
+                messages.push(messageObj);
+                localStorage.setItem('messages', JSON.stringify(messages));
+                
+                messageInput.value = '';
+                messageBox.scrollTop = messageBox.scrollHeight;
+            }
+        });
+
+        // Добавляем обработчик события изменения localStorage
+        window.addEventListener('storage', function (event) {
+            // Проверяем, что изменения произошли в ключе 'messages'
+            if (event.key === 'messages') {
+                // Вызываем функцию отображения сообщений при изменении localStorage
+                displayStoredMessages();
+            }
+        });
+    </script>
+</body>
+</html>
